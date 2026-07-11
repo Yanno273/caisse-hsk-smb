@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caisse Sociale HSK-SMB</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EEEAdd;
+    --paper2:#E7E1D0;
+    --line:#CFC6AC;
+    --ink:#20262c;
+    --ink-soft:#5b5f57;
+    --rule:#8a2f34;
+    --rule-soft:#b3595e;
+    --brass:#a3803f;
+    --brass-soft:#cbab6d;
+    --green:#3c6b4b;
+    --green-bg:#e3ece2;
+    --red-bg:#f3e2e0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:1080px;margin:0 auto;padding:0 0 60px;}
+
+  /* ---- header / cover ---- */
+  .cover{
+    position:relative;
+    padding:36px 28px 26px;
+    border-bottom:3px double var(--rule);
+    background:
+      repeating-linear-gradient(
+        180deg,
+        transparent, transparent 27px,
+        var(--line) 27px, var(--line) 28px
+      );
+  }
+  .cover::before{
+    content:"";
+    position:absolute; left:56px; top:0; bottom:0;
+    width:2px; background:var(--rule-soft); opacity:.55;
+  }
+  .cover-inner{padding-left:56px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:.14em;
+    font-size:11px;
+    color:var(--rule);
+    text-transform:uppercase;
+    margin:0 0 6px;
+  }
+  h1.title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px,5vw,42px);
+    margin:0 0 4px;
+    letter-spacing:-.01em;
+  }
+  .subtitle{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    margin:0;
+  }
+
+  .seal{
+    position:absolute;
+    top:30px; right:28px;
+    width:108px; height:108px;
+    border-radius:50%;
+    border:2.5px solid var(--brass);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    transform:rotate(-6deg);
+    background:radial-gradient(circle at 35% 30%, #fff8ea 0%, var(--paper2) 70%);
+    box-shadow:0 2px 0 rgba(0,0,0,.05) inset;
+  }
+  .seal .seal-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px; letter-spacing:.08em; color:var(--brass);
+    text-transform:uppercase;
+  }
+  .seal .seal-amount{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:15px;
+    line-height:1.15;
+    margin-top:2px;
+    color:var(--ink);
+  }
+
+  /* ---- tabs ---- */
+  nav.tabs{
+    display:flex;
+    gap:2px;
+    padding:0 28px;
+    background:var(--paper2);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+  }
+  nav.tabs button{
+    appearance:none;border:none;background:transparent;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    letter-spacing:.04em;
+    padding:13px 16px 11px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    white-space:nowrap;
+    text-transform:uppercase;
+  }
+  nav.tabs button:hover{color:var(--ink);}
+  nav.tabs button.active{
+    color:var(--rule);
+    border-bottom-color:var(--rule);
+    font-weight:600;
+  }
+  nav.tabs button:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+    outline:2px solid var(--brass); outline-offset:2px;
+  }
+
+  main{padding:26px 28px 0;}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  h2.section-title{
+    font-family:'Fraunces',serif;
+    font-size:20px; font-weight:600;
+    margin:0 0 4px;
+  }
+  .section-desc{color:var(--ink-soft); font-size:13px; margin:0 0 18px;}
+
+  /* stat cards */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:26px;
+  }
+  .stat{
+    background:var(--paper);
+    padding:16px 18px;
+  }
+  .stat .label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  .stat .value{
+    font-family:'Fraunces',serif;
+    font-size:22px; font-weight:600;
+    margin:0;
+  }
+  .stat.pos .value{color:var(--green);}
+  .stat.neg .value{color:var(--rule);}
+
+  /* forms */
+  .card{
+    background:var(--paper2);
+    border:1px solid var(--line);
+    padding:18px;
+    margin-bottom:22px;
+  }
+  .card h3{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px; text-transform:uppercase; letter-spacing:.07em;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+  }
+  .form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;
+    align-items:end;
+  }
+  label{
+    display:block;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+    font-family:'IBM Plex Mono',monospace;
+    letter-spacing:.03em;
+  }
+  input, select, textarea{
+    width:100%;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:13.5px;
+    padding:8px 9px;
+    border:1px solid var(--line);
+    background:#fbf9f2;
+    color:var(--ink);
+    border-radius:2px;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--brass);}
+  button.primary{
+    appearance:none;
+    background:var(--rule);
+    color:#fbf3e9;
+    border:none;
+    padding:9px 18px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    cursor:pointer;
+    border-radius:2px;
+  }
+  button.primary:hover{background:var(--rule-soft);}
+  button.ghost{
+    appearance:none;background:transparent;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:8px 14px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    cursor:pointer;
+    border-radius:2px;
+  }
+  button.ghost:hover{border-color:var(--rule); color:var(--rule);}
+  button.ghost.active-sort{border-color:var(--rule); color:var(--rule); background:var(--red-bg);}
+
+  .toolbar{
+    display:flex; gap:10px; align-items:center; justify-content:space-between;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+  .toolbar input[type="search"]{max-width:280px;}
+
+  /* table (ledger) */
+  .ledger{width:100%; border-collapse:collapse; font-size:13px;}
+  .ledger thead th{
+    text-align:left;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    border-bottom:2px solid var(--ink);
+    padding:8px 10px;
+    position:sticky; top:0; background:var(--paper);
+  }
+  .ledger tbody td{
+    padding:9px 10px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  .ledger tbody tr:hover{background:var(--paper2);}
+  .ledger td.amount, .ledger th.amount{text-align:right; font-family:'IBM Plex Mono',monospace;}
+  .ledger td.del{text-align:right;}
+  .table-wrap{
+    max-height:520px;
+    overflow:auto;
+    border:1px solid var(--line);
+    background:var(--paper);
+  }
+  .row-del{
+    appearance:none;background:none;border:none;color:var(--ink-soft);
+    cursor:pointer; font-size:15px; line-height:1;
+  }
+  .row-del:hover{color:var(--rule);}
+
+  .badge{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px; text-transform:uppercase; letter-spacing:.04em;
+    padding:2px 7px; border-radius:10px;
+    margin:1px 3px 1px 0;
+    border:1px solid var(--brass-soft);
+    color:var(--brass);
+    background:#fbf3e2;
+  }
+  .badge.fiche-non{color:var(--rule); border-color:var(--rule-soft); background:var(--red-bg);}
+  .badge.statut-ajour{color:var(--green); border-color:var(--green); background:var(--green-bg);}
+  .badge.statut-retard{color:var(--rule); border-color:var(--rule-soft); background:var(--red-bg);}
+  .reste-highlight{color:var(--rule); font-weight:700; font-size:14px;}
+
+  .empty{
+    padding:30px; text-align:center; color:var(--ink-soft); font-size:13px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  .recent-list{list-style:none; margin:0; padding:0;}
+  .recent-list li{
+    display:flex; justify-content:space-between; gap:10px;
+    padding:9px 0; border-bottom:1px solid var(--line);
+    font-size:13px;
+  }
+  .recent-list li .who{font-weight:500;}
+  .recent-list li .when{color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; font-size:11.5px;}
+  .recent-list li .amt{font-family:'IBM Plex Mono',monospace; white-space:nowrap;}
+
+  .foot-note{
+    text-align:center; color:var(--ink-soft); font-size:11.5px;
+    padding:22px 0 4px; font-family:'IBM Plex Mono',monospace;
+  }
+  .danger-zone{margin-top:8px;}
+
+  /* ---- budget recap ---- */
+  .budget-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    border:1px solid var(--line);
+  }
+  .budget-col{padding:14px 16px;}
+  .budget-col:first-child{border-right:2px double var(--rule);}
+  .budget-col h4{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--rule); margin:0 0 10px; padding-bottom:6px; border-bottom:1px solid var(--line);
+  }
+  .budget-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .budget-table td{padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top;}
+  .budget-table td.b-amount{text-align:right; font-family:'IBM Plex Mono',monospace; white-space:nowrap;}
+  .budget-table tr.b-total td{font-weight:700; border-top:2px solid var(--ink); border-bottom:none;}
+  .budget-table tr.b-empty td{color:var(--ink-soft); font-style:italic;}
+  .budget-solde{
+    margin:14px 0 0; padding:12px 16px;
+    font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:700; text-align:right;
+    background:var(--paper2); border:1px solid var(--line);
+  }
+  @media (max-width:640px){
+    .budget-grid{grid-template-columns:1fr;}
+    .budget-col:first-child{border-right:none; border-bottom:2px double var(--rule);}
+  }
+
+  @media (max-width:640px){
+    .cover{padding:26px 18px 20px;}
+    .cover-inner{padding-left:34px;}
+    .cover::before{left:0;}
+    .seal{width:80px;height:80px; top:20px; right:16px;}
+    .seal .seal-amount{font-size:11px;}
+    main{padding:18px 16px 0;}
+    nav.tabs{padding:0 12px;}
+  }
+
+  /* ---- printable report ---- */
+  .print-area{display:none;}
+  .print-area h1{
+    font-family:'Fraunces',serif; font-size:22px; font-weight:600; margin:0 0 2px;
+  }
+  .print-area .print-subtitle{margin:0 0 2px; font-size:13px; color:#333;}
+  .print-area .print-date{margin:0 0 4px; font-size:11px; color:#555; font-family:'IBM Plex Mono',monospace;}
+  .print-area .print-meta{margin:0 0 16px; font-size:11px; color:#555; font-family:'IBM Plex Mono',monospace; font-style:italic;}
+  .print-area table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .print-area th{
+    text-align:left; border-bottom:2px solid #000; padding:6px 8px;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase;
+  }
+  .print-area td{padding:5px 8px; border-bottom:1px solid #ccc;}
+  .print-area th:last-child, .print-area td:last-child{text-align:right;}
+  .print-area td.num{text-align:right; font-family:'IBM Plex Mono',monospace;}
+  .print-area .print-total{
+    margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:13px; text-align:right; font-weight:600;
+  }
+  .print-area .status-retard{color:var(--rule); font-weight:600;}
+
+  @media print{
+    body > *:not(.print-area){display:none !important;}
+    .print-area.active-print{display:block !important;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+<div id="signin-gate" style="max-width:420px;margin:15vh auto 0;padding:32px 28px;text-align:center;font-family:'IBM Plex Sans',sans-serif;">
+  <p style="font-family:'IBM Plex Mono',monospace;letter-spacing:.14em;font-size:11px;color:#8a2f34;text-transform:uppercase;margin:0 0 10px;">Registre &middot; Rev. 2026</p>
+  <h1 style="font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:0 0 8px;">Caisse Sociale HSK-SMB</h1>
+  <p style="color:#5b5f57;font-size:14px;margin:0 0 28px;">Connecte-toi avec Google pour ouvrir le registre — tes données sont enregistrées dans ton propre Google Drive.</p>
+  <button id="btn-google-signin" disabled style="appearance:none;background:#8a2f34;color:#fbf3e9;border:none;padding:12px 24px;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border-radius:3px;">Chargement…</button>
+  <p id="signin-error" style="display:none;color:#8a2f34;font-size:12.5px;margin-top:16px;"></p>
+</div>
+
+<div id="app" style="display:none;">
+
+  <div class="cover">
+    <div class="seal" id="seal">
+      <div class="seal-label">Solde</div>
+      <div class="seal-amount" id="seal-amount">—</div>
+    </div>
+    <div class="cover-inner">
+      <p class="eyebrow">Registre &middot; Rev. 2026</p>
+      <h1 class="title">Caisse Sociale HSK-SMB</h1>
+      <p class="subtitle">Cotisations, prestations, dépenses et membres — un seul registre.</p>
+    </div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="dashboard" class="active">Tableau de bord</button>
+    <button data-tab="cotisations">Cotisations</button>
+    <button data-tab="etat">État des cotisations</button>
+    <button data-tab="prestations">Prestations</button>
+    <button data-tab="depenses">Dépenses</button>
+    <button data-tab="membres">Membres</button>
+  </nav>
+
+  <main>
+
+    <!-- ================= DASHBOARD ================= -->
+    <section class="panel active" id="panel-dashboard">
+      <h2 class="section-title">Point de caisse</h2>
+      <p class="section-desc">Vue d'ensemble mise à jour en temps réel à partir des registres.</p>
+
+      <div class="card">
+        <h3>Dernières écritures</h3>
+        <ul class="recent-list" id="recent-list"></ul>
+      </div>
+
+      <div class="card">
+        <h3>Point par collecteur</h3>
+        <p class="section-desc" style="margin-bottom:12px;">Ce que chaque collecteur a en caisse : solde 2025 reporté + total collecté (cotisations) − total décaissé (prestations et autres dépenses réglées).</p>
+        <div class="table-wrap" style="max-height:320px;">
+          <table class="ledger">
+            <thead><tr><th>Collecteur</th><th class="amount">Caisse 2025</th><th class="amount">Total collecté</th><th class="amount">Total décaissé</th><th class="amount">Reste en main</th></tr></thead>
+            <tbody id="tbody-collecteurs-point"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" id="budget-card">
+        <div class="toolbar" style="margin-bottom:10px;">
+          <h3 style="margin:0;">Récapitulatif budgétaire — Recettes / Dépenses réalisées</h3>
+          <button class="primary" id="btn-print-budget" type="button">Imprimer</button>
+        </div>
+        <div class="budget-grid">
+          <div class="budget-col">
+            <h4>Recettes réalisées</h4>
+            <table class="ledger budget-table">
+              <tbody id="budget-recettes"></tbody>
+            </table>
+          </div>
+          <div class="budget-col">
+            <h4>Dépenses réalisées</h4>
+            <table class="ledger budget-table">
+              <tbody id="budget-depenses"></tbody>
+            </table>
+          </div>
+        </div>
+        <p class="budget-solde" id="budget-solde"></p>
+      </div>
+
+      <div class="danger-zone">
+        <button class="ghost" id="btn-reset">Réinitialiser aux données importées</button>
+      </div>
+    </section>
+
+    <!-- ================= COTISATIONS ================= -->
+    <section class="panel" id="panel-cotisations">
+      <h2 class="section-title">Cotisations</h2>
+      <p class="section-desc">Historique des versements des membres.</p>
+
+      <div class="card">
+        <h3>Nouvelle cotisation</h3>
+        <form id="form-cotisation" class="form-grid">
+          <div><label>Date</label><input type="date" name="date" required></div>
+          <div><label>Nom du membre</label><input type="text" name="nom" list="membres-list" required></div>
+          <div><label>Montant (FCFA)</label><input type="number" name="montant" min="0" step="500" required></div>
+          <div><label>Collecteur</label><input type="text" name="collecteur"></div>
+          <div style="grid-column:1/-1;"><label>Commentaire</label><input type="text" name="commentaire"></div>
+          <div><button class="primary" type="submit">Ajouter</button></div>
+        </form>
+      </div>
+
+      <div class="toolbar">
+        <input type="search" id="search-cotisations" placeholder="Rechercher un membre…">
+        <span id="count-cotisations" style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="ledger">
+          <thead><tr>
+            <th>Date</th><th>Nom</th><th>Collecteur</th><th class="amount">Montant</th><th>Commentaire</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-cotisations"></tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:22px;" id="totaux-card">
+        <div class="toolbar" style="margin-bottom:10px;">
+          <h3 style="margin:0;">Cotisations actuelles par membre</h3>
+          <div style="display:flex; gap:8px;">
+            <button class="ghost" id="btn-sort-alpha" type="button">Trier : A → Z</button>
+            <button class="ghost" id="btn-sort-montant" type="button">Trier : Montant</button>
+            <button class="primary" id="btn-print-totaux" type="button">Imprimer</button>
+          </div>
+        </div>
+        <div class="table-wrap" style="max-height:320px;">
+          <table class="ledger">
+            <thead><tr><th>Nom</th><th class="amount">Versements</th><th class="amount">Total</th></tr></thead>
+            <tbody id="tbody-totaux-membres"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ETAT DES COTISATIONS ================= -->
+    <section class="panel" id="panel-etat">
+      <h2 class="section-title">État des cotisations</h2>
+      <p class="section-desc">Cotisation : 3 000 FCFA / mois. « En retard » dès que le montant actuel (total versé − dette 2025) est inférieur à 3 000 FCFA × le nombre de mois écoulés depuis le 1er janvier.</p>
+
+      <div class="stats">
+        <div class="stat pos">
+          <p class="label">Membres à jour</p>
+          <p class="value" id="stat-etat-ajour">—</p>
+        </div>
+        <div class="stat neg">
+          <p class="label">Membres en retard</p>
+          <p class="value" id="stat-etat-retard">—</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input type="search" id="search-etat" placeholder="Rechercher un membre…">
+        <div style="display:flex; gap:8px;">
+          <select id="filter-etat">
+            <option value="tous">Tous les membres</option>
+            <option value="ajour">À jour uniquement</option>
+            <option value="retard">En retard uniquement</option>
+          </select>
+          <button class="primary" id="btn-print-etat" type="button">Imprimer</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="ledger">
+          <thead><tr>
+            <th>Nom</th><th class="amount">Dette 2025</th><th class="amount">Total versé</th><th class="amount">Montant actuel</th><th class="amount">Reste à payer</th><th>Statut</th>
+          </tr></thead>
+          <tbody id="tbody-etat"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= PRESTATIONS ================= -->
+    <section class="panel" id="panel-prestations">
+      <h2 class="section-title">Prestations versées</h2>
+      <p class="section-desc">Décès, mariages, hospitalisations, retraites et autres prestations réglées aux membres.</p>
+
+      <div class="card">
+        <h3>Nouvelle prestation</h3>
+        <form id="form-prestation" class="form-grid">
+          <div>
+            <label>Type</label>
+            <select name="type">
+              <option>Décès</option>
+              <option>Mariage</option>
+              <option>Hospitalisation ≥ 10 jours</option>
+              <option>Retraite</option>
+              <option>Autres</option>
+            </select>
+          </div>
+          <div><label>Nom du membre</label><input type="text" name="nom" list="membres-list" required></div>
+          <div><label>Date</label><input type="date" name="date" required></div>
+          <div><label>Montant (FCFA)</label><input type="number" name="montant" min="0" step="500" required></div>
+          <div><label>Transport / hébergement</label><input type="number" name="transport" min="0" step="500"></div>
+          <div style="grid-column:1/-1;">
+            <label>Montant décaissé par chaque collecteur (FCFA)</label>
+            <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+              <div><label>YANNICK</label><input type="number" name="part_yannick" min="0" step="500" value="0"></div>
+              <div><label>GERALD</label><input type="number" name="part_gerald" min="0" step="500" value="0"></div>
+              <div><label>ALI</label><input type="number" name="part_ali" min="0" step="500" value="0"></div>
+            </div>
+          </div>
+          <div style="grid-column:1/-1;"><label>Commentaire</label><input type="text" name="commentaire"></div>
+          <div><button class="primary" type="submit">Ajouter</button></div>
+        </form>
+      </div>
+
+      <div class="toolbar">
+        <input type="search" id="search-prestations" placeholder="Rechercher…">
+        <span id="count-prestations" style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="ledger">
+          <thead><tr>
+            <th>Type</th><th>Nom</th><th>Date</th><th class="amount">Montant</th><th class="amount">Transport</th><th>Collecteur</th><th>Commentaire</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-prestations"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= DEPENSES ================= -->
+    <section class="panel" id="panel-depenses">
+      <h2 class="section-title">Autres dépenses</h2>
+      <p class="section-desc">Frais de fonctionnement, versements en banque, transport, etc.</p>
+
+      <div class="card">
+        <h3>Nouvelle dépense</h3>
+        <form id="form-depense" class="form-grid">
+          <div><label>Nom / Auteur</label><input type="text" name="nom" required></div>
+          <div><label>Date</label><input type="date" name="date" required></div>
+          <div><label>Libellé</label><input type="text" name="libelle"></div>
+          <div><label>Montant (FCFA)</label><input type="number" name="montant" min="0" step="500" required></div>
+          <div><label>Annexe / Frais</label><input type="number" name="annexe" min="0" step="500"></div>
+          <div style="grid-column:1/-1;">
+            <label>Montant décaissé par chaque collecteur (FCFA)</label>
+            <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+              <div><label>YANNICK</label><input type="number" name="part_yannick" min="0" step="500" value="0"></div>
+              <div><label>GERALD</label><input type="number" name="part_gerald" min="0" step="500" value="0"></div>
+              <div><label>ALI</label><input type="number" name="part_ali" min="0" step="500" value="0"></div>
+            </div>
+          </div>
+          <div style="grid-column:1/-1;"><label>Commentaire</label><input type="text" name="commentaire"></div>
+          <div><button class="primary" type="submit">Ajouter</button></div>
+        </form>
+      </div>
+
+      <div class="toolbar">
+        <input type="search" id="search-depenses" placeholder="Rechercher…">
+        <span id="count-depenses" style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="ledger">
+          <thead><tr>
+            <th>Nom</th><th>Date</th><th>Libellé</th><th class="amount">Montant</th><th class="amount">Annexe</th><th>Collecteur</th><th>Commentaire</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-depenses"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= MEMBRES ================= -->
+    <section class="panel" id="panel-membres">
+      <h2 class="section-title">Membres</h2>
+      <p class="section-desc">Registre des membres et de leurs prestations déjà perçues.</p>
+
+      <div class="card">
+        <h3>Nouveau membre</h3>
+        <form id="form-membre" class="form-grid">
+          <div><label>Nom</label><input type="text" name="nom" required></div>
+          <div><label>Matricule</label><input type="text" name="matricule"></div>
+          <div><label>Fiche présente ?</label>
+            <select name="fiche"><option>Oui</option><option>Non</option></select>
+          </div>
+          <div><label>Dette 2025 (FCFA)</label><input type="number" name="dette_2025" min="0" step="500" value="0"></div>
+          <div><button class="primary" type="submit">Ajouter</button></div>
+        </form>
+      </div>
+
+      <div class="toolbar">
+        <input type="search" id="search-membres" placeholder="Rechercher un membre…">
+        <span id="count-membres" style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="ledger">
+          <thead><tr>
+            <th>#</th><th>Nom</th><th>Matricule</th><th>Fiche</th><th>Prestations perçues</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-membres"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <p class="foot-note">Caisse Sociale HSK-SMB — données enregistrées dans ton Google Drive. <button id="btn-google-signout" class="ghost" style="margin-left:8px;">Se déconnecter</button></p>
+</div>
+
+<div id="print-report" class="print-area">
+  <h1>Caisse Sociale HSK-SMB</h1>
+  <p class="print-subtitle">Cotisations actuelles par membre — par ordre alphabétique</p>
+  <p class="print-date" id="print-date"></p>
+  <p class="print-meta">Tous les montants sont en FCFA.</p>
+  <table>
+    <thead><tr><th>Nom</th><th>Versements</th><th>Total cotisé</th></tr></thead>
+    <tbody id="print-tbody"></tbody>
+  </table>
+  <p class="print-total" id="print-total"></p>
+</div>
+
+<div id="print-report-etat" class="print-area">
+  <h1>Caisse Sociale HSK-SMB</h1>
+  <p class="print-subtitle">État des cotisations par membre — par ordre alphabétique</p>
+  <p class="print-date" id="print-date-etat"></p>
+  <p class="print-meta" id="print-summary-etat"></p>
+  <table>
+    <thead><tr><th>N°</th><th>Matricule</th><th>Nom</th><th>Dette 2025</th><th>Total versé</th><th>Montant actuel</th><th>Reste à payer</th><th>Statut</th></tr></thead>
+    <tbody id="print-tbody-etat"></tbody>
+  </table>
+</div>
+
+<div id="print-report-budget" class="print-area">
+  <h1>Caisse Sociale HSK-SMB</h1>
+  <p class="print-subtitle">Récapitulatif budgétaire — Recettes / Dépenses réalisées</p>
+  <p class="print-date" id="print-date-budget"></p>
+  <p class="print-meta">Tous les montants sont en FCFA.</p>
+  <div class="budget-grid">
+    <div class="budget-col">
+      <h4>Recettes réalisées</h4>
+      <table><tbody id="print-budget-recettes"></tbody></table>
+    </div>
+    <div class="budget-col">
+      <h4>Dépenses réalisées</h4>
+      <table><tbody id="print-budget-depenses"></tbody></table>
+    </div>
+  </div>
+  <p class="print-total" id="print-budget-solde"></p>
+</div>
+
+<datalist id="membres-list"></datalist>
+
+<script>
+const SEED_DATA = {"cotisations": [{"date": "2025-05-08", "collecteur": "ALI", "nom": "DOUA TIEMOKO HENRI", "montant": 36000, "commentaire": "12 000 POUR 2027"}, {"date": "2025-05-17", "collecteur": "YANNICK", "nom": "OUAKOUBO GNEHEBI DESIRE MARCEL", "montant": 4000, "commentaire": null}, {"date": "2025-09-23", "collecteur": "ALI", "nom": "BOGUI YASSE ARNAUD", "montant": 9000, "commentaire": null}, {"date": "2025-11-25", "collecteur": "ALI", "nom": "DJIKALOU DAGOUROU HYPPOLYTE MICHEL", "montant": 8000, "commentaire": null}, {"date": "2025-11-27", "collecteur": "YANNICK", "nom": "BAKAYOKO NABI YOUSSOUF", "montant": 8000, "commentaire": null}, {"date": "2025-11-27", "collecteur": "YANNICK", "nom": "OGBOULO VINCENT LAUBOUET", "montant": 10000, "commentaire": null}, {"date": "2025-12-31", "collecteur": "ALI", "nom": "KOUAO GNAMIEN HERMAN", "montant": 11000, "commentaire": null}, {"date": "2025-12-31", "collecteur": "ALI", "nom": "KONATE LAMINE", "montant": 6000, "commentaire": null}, {"date": "2026-01-02", "collecteur": "GERALD", "nom": "N'GUESSAN JULES MARTIAL", "montant": 1000, "commentaire": null}, {"date": "2026-01-08", "collecteur": "GERALD", "nom": "DIABI SALIMOU", "montant": 20000, "commentaire": null}, {"date": "2026-01-12", "collecteur": "YANNICK", "nom": "KOUKOUGNON BALLE ERNEST-MATHIEU", "montant": 6000, "commentaire": null}, {"date": "2026-01-12", "collecteur": "YANNICK", "nom": "TOURE MIGNILBIEN CONSTANTIN", "montant": 15000, "commentaire": null}, {"date": "2026-01-15", "collecteur": "GERALD", "nom": "GUEI GNONSIEKAN BRICE", "montant": 12000, "commentaire": null}, {"date": "2026-01-15", "collecteur": "GERALD", "nom": "AMBE KOTCHI ROMARIC", "montant": 35000, "commentaire": null}, {"date": "2026-01-15", "collecteur": "GERALD", "nom": "KESSE SAMUEL", "montant": 15000, "commentaire": null}, {"date": "2026-01-16", "collecteur": "GERALD", "nom": "ANGAMAN JEAN EVRARD SAMS", "montant": 30000, "commentaire": null}, {"date": "2026-01-16", "collecteur": "GERALD", "nom": "KESSE SAMUEL", "montant": 5000, "commentaire": null}, {"date": "2026-01-17", "collecteur": "GERALD", "nom": "COULIBALY DJONGUE", "montant": 20000, "commentaire": null}, {"date": "2026-01-17", "collecteur": "YANNICK", "nom": "TOURE LAGNIMY", "montant": 30000, "commentaire": null}, {"date": "2026-01-17", "collecteur": "GERALD", "nom": "TRAORE ISSA", "montant": 18000, "commentaire": null}, {"date": "2026-01-19", "collecteur": "YANNICK", "nom": "TOURE MIGNILBIEN CONSTANTIN", "montant": 11000, "commentaire": null}, {"date": "2026-01-21", "collecteur": "YANNICK", "nom": "GUISSI LUCIEN", "montant": 35000, "commentaire": null}, {"date": "2026-01-21", "collecteur": "YANNICK", "nom": "KARABOUE GAOUSSOU", "montant": 6000, "commentaire": null}, {"date": "2026-01-21", "collecteur": "YANNICK", "nom": "BAKAYOKO AMARA", "montant": 10000, "commentaire": null}, {"date": "2026-01-27", "collecteur": "ALI", "nom": "SARR KOUEPOHYRO VINCENT", "montant": 19000, "commentaire": null}, {"date": "2026-01-27", "collecteur": "GERALD", "nom": "OUATTARA WAKAN SEBASTIEN", "montant": 36000, "commentaire": null}, {"date": "2026-01-30", "collecteur": "YANNICK", "nom": "KOUADIO LAMINE OUATTARA", "montant": 36000, "commentaire": null}, {"date": "2026-01-28", "collecteur": "GERALD", "nom": "KANTE VAMARA", "montant": 10000, "commentaire": null}, {"date": "2026-02-02", "collecteur": "GERALD", "nom": "KRA KONAN PARFAIT", "montant": 6000, "commentaire": null}, {"date": "2026-02-11", "collecteur": "YANNICK", "nom": "VAGAN AKRE", "montant": 18000, "commentaire": null}, {"date": "2026-02-12", "collecteur": "GERALD", "nom": "DOUE GUY SERGE", "montant": 20000, "commentaire": null}, {"date": "2026-02-21", "collecteur": "YANNICK", "nom": "KOUAKOU YANNICK HERBERT", "montant": 36000, "commentaire": null}, {"date": "2026-02-14", "collecteur": "YANNICK", "nom": "BANCOULI TCHEPOH FREDERIC MICHEL", "montant": 18000, "commentaire": null}, {"date": "2026-02-25", "collecteur": "GERALD", "nom": "KOUMAN MOUSSA OUATTARA", "montant": 20000, "commentaire": null}, {"date": "2026-02-25", "collecteur": "YANNICK", "nom": "KONAN N'GUESSAN ERIC MEDARD", "montant": 10000, "commentaire": null}, {"date": "2026-02-25", "collecteur": "YANNICK", "nom": "YAPO ADOPO EZECHIEL CANISIUS", "montant": 10000, "commentaire": null}, {"date": "2026-02-28", "collecteur": "GERALD", "nom": "TOURE LAGNIMY", "montant": 10000, "commentaire": null}, {"date": "2026-03-01", "collecteur": "GERALD", "nom": "GUEI LANDRY ROMARIC ZAH", "montant": 5000, "commentaire": null}, {"date": "2026-03-02", "collecteur": "YANNICK", "nom": "ANDO SEKA", "montant": 20000, "commentaire": null}, {"date": "2026-03-04", "collecteur": "YANNICK", "nom": "KONAN N'GUESSAN ERIC MEDARD", "montant": 20000, "commentaire": null}, {"date": "2026-03-04", "collecteur": "GERALD", "nom": "KRA KODIA KOUADIO JACOB", "montant": 10000, "commentaire": null}, {"date": "2026-03-05", "collecteur": "GERALD", "nom": "DIABI SALIMOU", "montant": 10000, "commentaire": null}, {"date": "2026-03-05", "collecteur": "GERALD", "nom": "YAO KOKO KOUADIO BORIS INNOCENT", "montant": 10000, "commentaire": null}, {"date": "2026-03-05", "collecteur": "GERALD", "nom": "KOUTOU PAULE-ARLETTE EPSE KOUAKOU", "montant": 5000, "commentaire": null}, {"date": "2026-03-05", "collecteur": "GERALD", "nom": "KONATE LAMINE", "montant": 10000, "commentaire": null}, {"date": "2026-03-05", "collecteur": "YANNICK", "nom": "N'GOH YAO", "montant": 20000, "commentaire": null}, {"date": null, "collecteur": "YANNICK", "nom": "KOUAO GNAMIEN HERMAN", "montant": 5000, "commentaire": null}, {"date": "2026-03-20", "collecteur": "GERALD", "nom": "N'KON GERALD", "montant": 36000, "commentaire": null}, {"date": "2026-03-20", "collecteur": "GERALD", "nom": "DJIDJA BONI REMI", "montant": 10000, "commentaire": null}, {"date": "2026-03-21", "collecteur": "ALI", "nom": "NAON EDDY WILLIAM", "montant": 20000, "commentaire": null}, {"date": "2026-03-21", "collecteur": "YANNICK", "nom": "COULIBALY SIBRINA ABDOULAYE", "montant": 9000, "commentaire": null}, {"date": "2026-03-21", "collecteur": "YANNICK", "nom": "KUO SAHIE EPHREM", "montant": 6000, "commentaire": null}, {"date": "2026-03-21", "collecteur": "YANNICK", "nom": "ASSOMA ASSI PATRICK OLIVIER", "montant": 10000, "commentaire": null}, {"date": "2026-03-22", "collecteur": "GERALD", "nom": "KESSE SAMUEL", "montant": 12000, "commentaire": null}, {"date": "2026-03-22", "collecteur": "YANNICK", "nom": "BAKAYOKO NABI YOUSSOUF", "montant": 12000, "commentaire": null}, {"date": "2026-03-22", "collecteur": "YANNICK", "nom": "MONTOEMON BLEHEDI ELIE", "montant": 20000, "commentaire": null}, {"date": "2026-03-23", "collecteur": "YANNICK", "nom": "KOBON YAPO NICAISE", "montant": 10000, "commentaire": null}, {"date": "2026-03-24", "collecteur": "YANNICK", "nom": "SEGUENEBOU SERGES VITAL", "montant": 36000, "commentaire": null}, {"date": "2026-03-24", "collecteur": "GERALD", "nom": "KANTE VAMARA", "montant": 10000, "commentaire": null}, {"date": "2026-03-24", "collecteur": "YANNICK", "nom": "YAPO ADOPO EZECHIEL CANISIUS", "montant": 10000, "commentaire": null}, {"date": "2026-03-24", "collecteur": "GERALD", "nom": "ANDO SEKA", "montant": 10000, "commentaire": null}, {"date": "2026-03-24", "collecteur": "GERALD", "nom": "IRIE BI TROH EMMANUEL", "montant": 35000, "commentaire": null}, {"date": "2026-03-25", "collecteur": "YANNICK", "nom": "ASSAMOI GUY SERGE", "montant": 30000, "commentaire": null}, {"date": "2026-03-30", "collecteur": "YANNICK", "nom": "VAGBE SEVERIN CONSTANT", "montant": 15000, "commentaire": null}, {"date": "2026-03-30", "collecteur": "GERALD", "nom": "BOGUI YASSE ARNAUD", "montant": 21000, "commentaire": null}, {"date": "2026-04-11", "collecteur": "YANNICK", "nom": "DJIDJA BONI REMI", "montant": 6000, "commentaire": null}, {"date": "2026-04-15", "collecteur": "YANNICK", "nom": "GUEI LANDRY ROMARIC ZAH", "montant": 5000, "commentaire": null}, {"date": "2026-04-18", "collecteur": "GERALD", "nom": "TOURE LAGNIMY", "montant": 10000, "commentaire": null}, {"date": "2026-04-24", "collecteur": "YANNICK", "nom": "ANDO SEKA", "montant": 6000, "commentaire": null}, {"date": "2026-04-28", "collecteur": "YANNICK", "nom": "SARR KOUEPOHYRO VINCENT", "montant": 10000, "commentaire": null}, {"date": "2026-04-28", "collecteur": "YANNICK", "nom": "KOUAO GNAMIEN HERMAN", "montant": 5000, "commentaire": null}, {"date": "2026-04-29", "collecteur": "GERALD", "nom": "GUEI GNONSIEKAN BRICE", "montant": 24000, "commentaire": null}, {"date": "2026-04-29", "collecteur": "GERALD", "nom": "YATTE KAMBE GHISLAIN", "montant": 40000, "commentaire": null}, {"date": "2026-04-29", "collecteur": "ALI", "nom": "KOBON YAPO NICAISE", "montant": 10000, "commentaire": null}, {"date": "2026-04-30", "collecteur": "YANNICK", "nom": "AMBE KOTCHI ROMARIC", "montant": 1000, "commentaire": null}, {"date": "2026-04-30", "collecteur": "YANNICK", "nom": "OUATTARA ZOUMANA", "montant": 42000, "commentaire": null}, {"date": "2026-04-30", "collecteur": "YANNICK", "nom": "ASSOMOU ALIMAN LOUIS MARIUS", "montant": 30000, "commentaire": null}, {"date": "2026-04-30", "collecteur": "YANNICK", "nom": "SORHO N'DEZONHON YACOUBA", "montant": 10000, "commentaire": null}, {"date": "2026-04-30", "collecteur": "GERALD", "nom": "GUEI LANDRY ROMARIC ZAH", "montant": 10000, "commentaire": null}, {"date": "2026-04-30", "collecteur": "GERALD", "nom": "YAO KOKO KOUADIO BORIS INNOCENT", "montant": 10000, "commentaire": null}, {"date": "2026-05-02", "collecteur": "ALI", "nom": "BOLI DEDI HERVE STEPHANE", "montant": 36000, "commentaire": null}, {"date": "2026-05-02", "collecteur": "ALI", "nom": "CAMARA ALMAMY KELETIGUI", "montant": 36000, "commentaire": null}, {"date": "2026-05-02", "collecteur": "ALI", "nom": "DIABI SALIMOU", "montant": 10000, "commentaire": null}, {"date": "2026-05-03", "collecteur": "YANNICK", "nom": "AKPA FRANCOIS XAVIER", "montant": 36000, "commentaire": null}, {"date": "2026-05-04", "collecteur": "YANNICK", "nom": "KOBON YAPO NICAISE", "montant": 10000, "commentaire": null}, {"date": "2026-05-04", "collecteur": "YANNICK", "nom": "KONAN SERGE PACOME", "montant": 50000, "commentaire": null}, {"date": "2026-05-04", "collecteur": "YANNICK", "nom": "AKE ALLOUE GILLES ROLAND", "montant": 20000, "commentaire": null}, {"date": "2026-05-05", "collecteur": "YANNICK", "nom": "COULIBALY DJONGUE", "montant": 10000, "commentaire": null}, {"date": "2026-05-05", "collecteur": "YANNICK", "nom": "BAKAYOKO NABI YOUSSOUF", "montant": 5000, "commentaire": null}, {"date": "2026-05-05", "collecteur": "ALI", "nom": "N'GOH YAO", "montant": 16000, "commentaire": null}, {"date": "2026-05-06", "collecteur": "YANNICK", "nom": "KUO SAHIE EPHREM", "montant": 9000, "commentaire": null}, {"date": "2026-05-06", "collecteur": "YANNICK", "nom": "IRIE BI TROH EMMANUEL", "montant": 25000, "commentaire": null}, {"date": "2026-05-06", "collecteur": "YANNICK", "nom": "KOUAO GNAMIEN HERMAN", "montant": 5000, "commentaire": null}, {"date": "2026-05-06", "collecteur": "YANNICK", "nom": "ASSOMA ASSI PATRICK OLIVIER", "montant": 10000, "commentaire": null}, {"date": "2026-05-07", "collecteur": "YANNICK", "nom": "AKE ALLOUE GILLES ROLAND", "montant": 10000, "commentaire": null}, {"date": "2026-05-07", "collecteur": "YANNICK", "nom": "KRA KODIA KOUADIO JACOB", "montant": 10000, "commentaire": 4000}, {"date": "2026-05-09", "collecteur": "YANNICK", "nom": "BOGUI YASSE ARNAUD", "montant": 6000, "commentaire": null}, {"date": "2026-05-09", "collecteur": "YANNICK", "nom": "DJIDJA BONI REMI", "montant": 10000, "commentaire": null}, {"date": "2026-05-11", "collecteur": "YANNICK", "nom": "KRA KODIA KOUADIO JACOB", "montant": 5000, "commentaire": null}, {"date": "2026-05-12", "collecteur": "YANNICK", "nom": "IRIE BI TRA VICTOR PAUL EDEN", "montant": 36000, "commentaire": null}, {"date": "2026-05-17", "collecteur": "GERALD", "nom": "N'GUESSAN JULES MARTIAL", "montant": 20000, "commentaire": null}, {"date": "2026-05-18", "collecteur": "YANNICK", "nom": "BANCOULI TCHEPOH FREDERIC MICHEL", "montant": 18000, "commentaire": null}, {"date": "2026-05-18", "collecteur": "YANNICK", "nom": "TOURE YAO FABIEN", "montant": 6000, "commentaire": null}, {"date": "2026-05-18", "collecteur": "GERALD", "nom": "ZONGOULEI ABEL", "montant": 21000, "commentaire": null}, {"date": "2026-05-18", "collecteur": "ALI", "nom": "OUATTARA ALI", "montant": 36000, "commentaire": null}, {"date": "2026-06-02", "collecteur": "YANNICK", "nom": "ASSAGOU SEDJI ANTOINE", "montant": 36000, "commentaire": null}, {"date": "2026-06-02", "collecteur": "YANNICK", "nom": "KOBON YAPO NICAISE", "montant": 10000, "commentaire": null}, {"date": "2026-06-16", "collecteur": "GERALD", "nom": "KOUADIO KONAN JEAN-JACQUES", "montant": 30000, "commentaire": null}, {"date": "2026-06-16", "collecteur": "GERALD", "nom": "VAGBE SEVERIN CONSTANT", "montant": 5000, "commentaire": null}, {"date": "2026-06-27", "collecteur": "YANNICK", "nom": "TOURE YAO FABIEN", "montant": 6000, "commentaire": null}, {"date": "2026-06-28", "collecteur": "YANNICK", "nom": "OUAKOUBO GNEHEBI DESIRE MARCEL", "montant": 32000, "commentaire": "4000 pour 2027"}, {"date": "2026-07-04", "collecteur": "GERALD", "nom": "OGBOULO VINCENT LAUBOUET", "montant": 10000, "commentaire": null}], "prestations": [{"type": "Décès", "commentaire": "Oncle déclaré ", "nom": "ASSOMOU ALIMAN LOUIS MARIUS", "date": "2026-01-19", "date_prestation": null, "total": 150000, "montant": 150000, "transport": null, "repartition": [{"collecteur": "YANNICK", "montant": 36000}, {"collecteur": "GERALD", "montant": 114000}]}, {"type": "Décès", "commentaire": "Agent", "nom": "VAGAN AKRE", "date": null, "date_prestation": null, "total": 170000, "montant": 150000, "transport": 20000, "repartition": [{"collecteur": "YANNICK", "montant": 50000}, {"collecteur": "GERALD", "montant": 70000}, {"collecteur": "ALI", "montant": 50000}]}], "depenses": [{"type": null, "nom": "COULIBALY SIBIRINA", "matricule": null, "date": "2026-02-07", "libelle": "Versement banque ", "total": 510000, "montant": 500000, "annexe": 10000, "commentaire": "Transport du President ", "repartition": [{"collecteur": "YANNICK", "montant": 300000}, {"collecteur": "GERALD", "montant": 210000}]}, {"type": null, "nom": "KOUAKOU YANNICK", "matricule": 2498, "date": "2026-05-07", "libelle": "Versement banque ", "total": 705000, "montant": 700000, "annexe": 5000, "commentaire": null, "repartition": [{"collecteur": "YANNICK", "montant": 465000}, {"collecteur": "GERALD", "montant": 240000}]}], "membres": [{"numero": 1, "nom": "ABOLE MOBIO GERMAIN FABRICE", "matricule": 1871, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 2, "nom": "ADINGRA KOUABENAN PRAO BONIFACE", "matricule": 1990, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 3, "nom": "AKE ALLOUE GILLES ROLAND", "matricule": 1925, "fiche": "Oui", "mariage_civil": null, "deces": 1, "maladie": 1, "retraite": null, "dette_2025": 0}, {"numero": 4, "nom": "AKPA FRANCOIS XAVIER", "matricule": 2092, "fiche": "Oui", "mariage_civil": null, "deces": 1, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 5, "nom": "AMBE KOTCHI ROMARIC", "matricule": 2502, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 6, "nom": "ANDO SEKA", "matricule": 1926, "fiche": "Oui", "mariage_civil": null, "deces": 1, "maladie": 1, "retraite": null, "dette_2025": 36000}, {"numero": 7, "nom": "ANGAMAN JEAN EVRARD SAMS", "matricule": 2038, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 8, "nom": "ASSAGOU SEDJI ANTOINE", "matricule": 1640, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 9, "nom": "ASSAMOI GUY SERGE", "matricule": 1755, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": 1, "retraite": null, "dette_2025": 3000}, {"numero": 10, "nom": "ASSOMA ASSI PATRICK OLIVIER", "matricule": 2496, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 11, "nom": "ASSOMOU ALIMAN LOUIS MARIUS", "matricule": 2125, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 12, "nom": "BAKAYOKO AMARA", "matricule": 2497, "fiche": null, "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 16000}, {"numero": 13, "nom": "BAKAYOKO NABI YOUSSOUF", "matricule": 2000, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 14, "nom": "BANCOULI TCHEPOH FREDERIC MICHEL", "matricule": 1872, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 15, "nom": "BOGUI YASSE ARNAUD", "matricule": 1569, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 16, "nom": "BOLI DEDI HERVE STEPHANE", "matricule": 2147, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 32000}, {"numero": 17, "nom": "BROU JEAN DURAND WILFRIED", "matricule": 2004, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 18, "nom": "CAMARA ALMAMY KELETIGUI", "matricule": 1740, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 19, "nom": "COULIBALY ALASSANE", "matricule": 2501, "fiche": "Oui", "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 20, "nom": "COULIBALY DJONGUE", "matricule": 1722, "fiche": "Oui", "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 22000}, {"numero": 21, "nom": "COULIBALY MAMADOU", "matricule": 2176, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 22, "nom": "COULIBALY PENANTCHONRON SOUNGALO ", "matricule": 2006, "fiche": "Oui", "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 23, "nom": "COULIBALY SIBRINA ABDOULAYE", "matricule": 2484, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 24, "nom": "COULIBALY WOLO BENJAMIN", "matricule": 2181, "fiche": null, "mariage_civil": null, "deces": null, "maladie": 1, "retraite": null, "dette_2025": 0}, {"numero": 25, "nom": "DAGO OTCHRO MATHIEU", "matricule": 1877, "fiche": "Oui", "mariage_civil": null, "deces": 1, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 26, "nom": "DIABATE ADAMA", "matricule": 2128, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 27, "nom": "DIABI SALIMOU", "matricule": 1878, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 21000}, {"numero": 28, "nom": "DJIDJA BONI REMI", "matricule": 1992, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 16000}, {"numero": 29, "nom": "DJIKALOU DAGOUROU HYPPOLYTE MICHEL", "matricule": 1716, "fiche": "Oui", "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 30, "nom": "DOUA TIEMOKO HENRI", "matricule": 2056, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 31, "nom": "DOUE GUY SERGE", "matricule": 1880, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 16000}, {"numero": 32, "nom": "GBA LOUANTY MAXIME", "matricule": 2161, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 6000}, {"numero": 33, "nom": "GUEI GNONSIEKAN BRICE", "matricule": 2482, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 34, "nom": "GUEI LANDRY ROMARIC ZAH", "matricule": 1754, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 35, "nom": "GUISSI LUCIEN", "matricule": 1658, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 33000}, {"numero": 36, "nom": "IRIE BI TRA VICTOR PAUL EDEN", "matricule": 1887, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": 1, "retraite": null, "dette_2025": 0}, {"numero": 37, "nom": "IRIE BI TROH EMMANUEL", "matricule": 1531, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 34500}, {"numero": 38, "nom": "KANTE VAMARA", "matricule": 2180, "fiche": null, "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 18000}, {"numero": 39, "nom": "KARABOUE GAOUSSOU", "matricule": 1643, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 6000}, {"numero": 40, "nom": "KEITA ABOUBAKARY", "matricule": 2014, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 41, "nom": "KESSE SAMUEL", "matricule": 2480, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": 1, "retraite": null, "dette_2025": 22000}, {"numero": 42, "nom": "KOBON YAPO NICAISE", "matricule": 2134, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 30000}, {"numero": 43, "nom": "KOFFI ATTA KOUASSI STEPHANE", "matricule": 2503, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 44, "nom": "KOFFI KOUAME GUY", "matricule": 2485, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 45, "nom": "KONAN N'GUESSAN ERIC MEDARD", "matricule": 2097, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 26000}, {"numero": 46, "nom": "KONAN SERGE PACOME", "matricule": 2174, "fiche": null, "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 19000}, {"numero": 47, "nom": "KONATE LAMINE", "matricule": 2575, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 6000}, {"numero": 48, "nom": "KONE KIDJOUFOLOKOUHO MOHAMED YASSINE", "matricule": 2146, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 6000}, {"numero": 49, "nom": "KOUADIO KONAN JEAN-JACQUES", "matricule": 1656, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 50, "nom": "KOUADIO LAMINE OUATTARA", "matricule": 2489, "fiche": "Oui", "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 51, "nom": "KOUAKOU YANNICK HERBERT", "matricule": 2498, "fiche": null, "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 52, "nom": "KOUAME YAO N'GORAN ARMAND ROLAND", "matricule": 1892, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 53, "nom": "KOUAO GNAMIEN HERMAN", "matricule": 2135, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 5000}, {"numero": 54, "nom": "KOUKOUGNON BALLE ERNEST-MATHIEU", "matricule": 2481, "fiche": "Oui", "mariage_civil": null, "deces": 1, "maladie": null, "retraite": null, "dette_2025": 6000}, {"numero": 55, "nom": "KOUMAN MOUSSA OUATTARA", "matricule": 2013, "fiche": "Oui", "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 56, "nom": "KRA KODIA KOUADIO JACOB", "matricule": 2483, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 57, "nom": "KRA KOFFI BOUATRIN DAMIEN", "matricule": 2137, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 58, "nom": "KRA KONAN PARFAIT", "matricule": 2488, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": 1, "retraite": null, "dette_2025": 6000}, {"numero": 59, "nom": "KUO SAHIE EPHREM", "matricule": 2499, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 15000}, {"numero": 60, "nom": "MONTOEMON BLEHEDI ELIE", "matricule": 2173, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 16000}, {"numero": 61, "nom": "NAON EDDY WILLIAM", "matricule": 2165, "fiche": "Oui", "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 11000}, {"numero": 62, "nom": "N'GOH YAO", "matricule": 1890, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 63, "nom": "N'GORAN KOUAKOU ANDERSON", "matricule": 1947, "fiche": null, "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 1000}, {"numero": 64, "nom": "N'GUESSAN JULES MARTIAL", "matricule": 2099, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 1000}, {"numero": 65, "nom": "N'GUESSAN YVES VALERY", "matricule": 2028, "fiche": "Oui", "mariage_civil": 1, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 66, "nom": "N'KON GERALD", "matricule": 2486, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 67, "nom": "OGBOULO VINCENT LAUBOUET", "matricule": 1651, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 68, "nom": "OUAKOUBO GNEHEBI DESIRE MARCEL", "matricule": 1612, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 69, "nom": "OUATTARA ALI", "matricule": 2500, "fiche": "Oui", "mariage_civil": 1, "deces": 2, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 70, "nom": "OUATTARA DRISSA", "matricule": 2495, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 71, "nom": "OUATTARA WAKAN SEBASTIEN", "matricule": 2138, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 72, "nom": "OUATTARA ZOUMANA", "matricule": 2047, "fiche": "OUI", "mariage_civil": 1, "deces": 1, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 73, "nom": "SARR KOUEPOHYRO VINCENT", "matricule": 1888, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 16000}, {"numero": 74, "nom": "SEGUENEBOU SERGES VITAL", "matricule": 2058, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 34000}, {"numero": 75, "nom": "SOKORA MAMBO GUILLAUME CYRILLE", "matricule": 2493, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 76, "nom": "SORHO N'DEZONHON YACOUBA", "matricule": 2494, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 77, "nom": "TAH BI TRA FRANCK ARISTIDE", "matricule": 2491, "fiche": null, "mariage_civil": null, "deces": null, "maladie": 1, "retraite": null, "dette_2025": 6000}, {"numero": 78, "nom": "TOURE LAGNIMY", "matricule": 2492, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 79, "nom": "TOURE MIGNILBIEN CONSTANTIN", "matricule": 2179, "fiche": "Oui", "mariage_civil": null, "deces": 1, "maladie": null, "retraite": null, "dette_2025": 26000}, {"numero": 80, "nom": "TOURE YAO FABIEN", "matricule": 2490, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 81, "nom": "TRAORE ISSA", "matricule": 1703, "fiche": null, "mariage_civil": null, "deces": null, "maladie": 1, "retraite": null, "dette_2025": 18000}, {"numero": 82, "nom": "TUO NAMONGOH", "matricule": 2467, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 83, "nom": "VAGAN AKRE", "matricule": 1532, "fiche": null, "mariage_civil": null, "deces": 1, "maladie": null, "retraite": 1, "dette_2025": 0}, {"numero": 84, "nom": "VAGBE SEVERIN CONSTANT", "matricule": 2034, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 1000}, {"numero": 85, "nom": "YAO KOKO KOUADIO BORIS INNOCENT", "matricule": 2037, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 16000}, {"numero": 86, "nom": "YAPO ADOPO EZECHIEL CANISIUS", "matricule": 2170, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 11000}, {"numero": 87, "nom": "YATTE KAMBE GHISLAIN", "matricule": 2487, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 36000}, {"numero": 88, "nom": "YEBOUE  YAO SIMON", "matricule": 2091, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 63000}, {"numero": 89, "nom": "ZONGOULEI ABEL", "matricule": 1891, "fiche": "Oui", "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}, {"numero": 90, "nom": "KOUTOU PAULE-ARLETTE EPSE KOUAKOU", "matricule": 2156, "fiche": null, "mariage_civil": null, "deces": null, "maladie": null, "retraite": null, "dette_2025": 0}], "soldeInitialCollecteurs": [{"collecteur": "YANNICK", "montant": 397000}, {"collecteur": "GERALD", "montant": 212000}, {"collecteur": "ALI", "montant": 48000}]};
+
+// ⚠️ À REMPLACER avant la mise en ligne — voir README.md pour l'obtenir.
+const GOOGLE_CLIENT_ID = 'REMPLACE_PAR_TON_CLIENT_ID.apps.googleusercontent.com';
+const DRIVE_FILENAME = 'caisse-hsk-smb-data.json';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+
+let tokenClient = null;
+let accessToken = null;
+let DATA = null;
+
+function fmtCFA(n){
+  n = Number(n)||0;
+  return new Intl.NumberFormat('fr-FR').format(n) + ' FCFA';
+}
+function fmtNum(n){
+  n = Number(n)||0;
+  return new Intl.NumberFormat('fr-FR').format(n);
+}
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso+'T00:00:00');
+  if(isNaN(d)) return iso;
+  return d.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function escapeHtml(s){
+  if(s===null||s===undefined) return '';
+  return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+let driveFileId = null;
+
+async function driveApi(url, options={}){
+  const res = await fetch(url, {
+    ...options,
+    headers: { ...(options.headers||{}), Authorization: 'Bearer ' + accessToken }
+  });
+  if(!res.ok){
+    const text = await res.text().catch(()=> '');
+    throw new Error('Erreur Google Drive ('+res.status+') '+text);
+  }
+  return res;
+}
+
+async function driveFindFile(){
+  const q = encodeURIComponent(`name='${DRIVE_FILENAME}' and trashed=false`);
+  const res = await driveApi(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&fields=files(id,name)`);
+  const data = await res.json();
+  return (data.files && data.files[0]) ? data.files[0].id : null;
+}
+
+async function driveReadFile(fileId){
+  const res = await driveApi(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
+  return res.json();
+}
+
+async function driveCreateFile(content){
+  const boundary = 'cshsk_' + Date.now();
+  const metadata = { name: DRIVE_FILENAME, mimeType: 'application/json' };
+  const body =
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+    `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(content)}\r\n` +
+    `--${boundary}--`;
+  const res = await driveApi('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', {
+    method: 'POST',
+    headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
+    body
+  });
+  const data = await res.json();
+  return data.id;
+}
+
+async function driveUpdateFile(fileId, content){
+  await driveApi(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(content)
+  });
+}
+
+async function loadData(){
+  try{
+    driveFileId = await driveFindFile();
+    if(driveFileId){
+      return await driveReadFile(driveFileId);
+    }
+  }catch(e){
+    console.error('Erreur de chargement depuis Google Drive', e);
+    alert("Impossible de lire le fichier sur Google Drive. Vérifie ta connexion et réessaie.");
+  }
+  return null;
+}
+async function saveData(){
+  try{
+    if(!driveFileId){
+      driveFileId = await driveCreateFile(DATA);
+    } else {
+      await driveUpdateFile(driveFileId, DATA);
+    }
+  }catch(e){
+    console.error('Erreur de sauvegarde sur Google Drive', e);
+    alert("Impossible d'enregistrer sur Google Drive. Vérifie ta connexion et réessaie.");
+  }
+}
+function ensureIds(arr){
+  arr.forEach(x=>{ if(!x.id) x.id = uid(); });
+  return arr;
+}
+function cloneSeed(){
+  const d = JSON.parse(JSON.stringify(SEED_DATA));
+  ensureIds(d.cotisations);
+  ensureIds(d.prestations);
+  ensureIds(d.depenses);
+  ensureIds(d.membres);
+  return d;
+}
+
+async function init(){
+  const loaded = await loadData();
+  DATA = loaded || cloneSeed();
+  if(!loaded){ await saveData(); }
+  ensureIds(DATA.cotisations);
+  ensureIds(DATA.prestations);
+  ensureIds(DATA.depenses);
+  ensureIds(DATA.membres);
+  DATA.membres.forEach(m=>{ if(m.dette_2025===undefined || m.dette_2025===null) m.dette_2025 = 0; });
+  if(!Array.isArray(DATA.soldeInitialCollecteurs)) DATA.soldeInitialCollecteurs = DATA.soldeInitial ? [{collecteur:'YANNICK', montant:Number(DATA.soldeInitial)||0}] : [];
+
+  setupTabs();
+  setupForms();
+  setupSearch();
+  renderAll();
+}
+
+function setupTabs(){
+  document.querySelectorAll('nav.tabs button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+function renderAll(){
+  renderDashboard();
+  renderCotisations();
+  renderEtat();
+  renderPrestations();
+  renderDepenses();
+  renderMembres();
+  renderMembresDatalist();
+}
+
+/* ---------- computations ---------- */
+function totalCotisations(){ return DATA.cotisations.reduce((s,c)=>s+(Number(c.montant)||0),0); }
+function totalPrestations(){ return DATA.prestations.reduce((s,p)=>s+(Number(p.montant)||0)+(Number(p.transport)||0),0); }
+function totalDepenses(){ return DATA.depenses.reduce((s,d)=>s+(Number(d.montant)||0)+(Number(d.annexe)||0),0); }
+function soldeInitialTotal(){ return (DATA.soldeInitialCollecteurs||[]).reduce((s,x)=>s+(Number(x.montant)||0),0); }
+function solde(){ return soldeInitialTotal() + totalCotisations() - totalPrestations() - totalDepenses(); }
+
+/* ---------- dashboard ---------- */
+function renderDashboard(){
+  const s = solde();
+  document.getElementById('seal-amount').textContent = fmtCFA(s);
+
+  const recent = [...DATA.cotisations].sort((a,b)=> (b.date||'').localeCompare(a.date||'')).slice(0,3);
+  const list = document.getElementById('recent-list');
+  list.innerHTML = recent.length ? recent.map(c=>`
+    <li>
+      <span class="who">${escapeHtml(c.nom)}</span>
+      <span class="when">${fmtDate(c.date)}</span>
+      <span class="amt">${fmtCFA(c.montant)}</span>
+    </li>`).join('') : '<li class="empty">Aucune cotisation enregistrée.</li>';
+
+  renderCollecteursPoint();
+  renderBudget();
+}
+
+/* ---------- récapitulatif budgétaire ---------- */
+const PRESTATION_TYPES = ['Décès', 'Mariage', 'Hospitalisation ≥ 10 jours', 'Retraite', 'Autres'];
+
+function computeBudget(){
+  const soldeInitial = soldeInitialTotal();
+  const recettes = [
+    {designation:'Caisse 2025 (solde reporté)', montant: soldeInitial},
+    {designation:'Cotisations encaissées', montant: totalCotisations()}
+  ];
+  const totalRecettes = soldeInitial + totalCotisations();
+
+  const parType = {};
+  PRESTATION_TYPES.forEach(t=> parType[t] = 0);
+  DATA.prestations.forEach(p=>{
+    const t = PRESTATION_TYPES.includes(p.type) ? p.type : 'Autres';
+    parType[t] += (Number(p.montant)||0) + (Number(p.transport)||0);
+  });
+  const depenses = PRESTATION_TYPES.map(t=> ({designation:'Prestations — ' + t, montant: parType[t]}));
+
+  const isBanque = d => (d.libelle||'').toLowerCase().includes('banque');
+  const totalBanque = DATA.depenses.filter(isBanque).reduce((s,d)=>s+(Number(d.montant)||0),0);
+  const totalTransportAnnexe = DATA.depenses.reduce((s,d)=>s+(Number(d.annexe)||0),0);
+  const totalAutresHorsBanque = DATA.depenses.filter(d=>!isBanque(d)).reduce((s,d)=>s+(Number(d.montant)||0),0);
+
+  depenses.push({designation:'Versement banque', montant: totalBanque});
+  depenses.push({designation:'Transport / frais annexes', montant: totalTransportAnnexe});
+  depenses.push({designation:'Autres dépenses (hors banque)', montant: totalAutresHorsBanque});
+  const totalDep = totalPrestations() + totalDepenses();
+
+  return {recettes, totalRecettes, depenses, totalDep, solde: totalRecettes - totalDep};
+}
+
+function renderBudget(){
+  const b = computeBudget();
+
+  const recettesRows = (fmt)=> b.recettes.map(r=>
+    `<tr><td>${escapeHtml(r.designation)}</td><td class="b-amount">${r.montant? fmt(r.montant) : '—'}</td></tr>`
+  ).join('') + `<tr class="b-total"><td>Total des recettes</td><td class="b-amount">${fmt(b.totalRecettes)}</td></tr>`;
+
+  const depensesRows = (fmt)=> b.depenses.map(d=>
+    `<tr><td>${escapeHtml(d.designation)}</td><td class="b-amount">${d.montant? fmt(d.montant) : '—'}</td></tr>`
+  ).join('') + `<tr class="b-total"><td>Total des dépenses</td><td class="b-amount">${fmt(b.totalDep)}</td></tr>`;
+
+  document.getElementById('budget-recettes').innerHTML = recettesRows(fmtCFA);
+  document.getElementById('budget-depenses').innerHTML = depensesRows(fmtCFA);
+  const soldeEl = document.getElementById('budget-solde');
+  soldeEl.textContent = 'Solde en caisse : ' + fmtCFA(b.solde);
+  soldeEl.style.color = b.solde<0 ? 'var(--rule)' : 'var(--green)';
+
+  document.getElementById('print-date-budget').textContent = 'Édité le ' + new Date().toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) + ' à ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('print-budget-recettes').innerHTML = recettesRows(fmtNum);
+  document.getElementById('print-budget-depenses').innerHTML = depensesRows(fmtNum);
+  document.getElementById('print-budget-solde').textContent = 'Solde en caisse : ' + fmtNum(b.solde) + ' FCFA';
+}
+
+/* ---------- cotisations ---------- */
+function renderCotisations(){
+  const q = (document.getElementById('search-cotisations').value||'').toLowerCase();
+  const rows = [...DATA.cotisations]
+    .filter(c=> !q || (c.nom||'').toLowerCase().includes(q))
+    .sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  document.getElementById('count-cotisations').textContent = rows.length + ' écriture(s)';
+  const tbody = document.getElementById('tbody-cotisations');
+  tbody.innerHTML = rows.length ? rows.map(c=>`
+    <tr>
+      <td>${fmtDate(c.date)}</td>
+      <td>${escapeHtml(c.nom)}</td>
+      <td>${escapeHtml(c.collecteur)||'—'}</td>
+      <td class="amount">${fmtCFA(c.montant)}</td>
+      <td>${escapeHtml(c.commentaire)||'—'}</td>
+      <td class="del"><button class="row-del" title="Supprimer" data-del="cotisations" data-id="${c.id}">✕</button></td>
+    </tr>`).join('') : '<tr><td colspan="6" class="empty">Aucune cotisation.</td></tr>';
+
+  renderTotauxMembres();
+  bindDeleteButtons();
+}
+
+/* ---------- totaux par membre (+ impression) ---------- */
+let totauxSortMode = 'alpha'; // 'alpha' | 'montant'
+
+function computeMemberTotals(){
+  const totals = {};
+  DATA.cotisations.forEach(c=>{
+    const key = c.nom || '—';
+    if(!totals[key]) totals[key] = {count:0,total:0};
+    totals[key].count++;
+    totals[key].total += Number(c.montant)||0;
+  });
+  let rows = Object.entries(totals);
+  if(totauxSortMode === 'montant'){
+    rows.sort((a,b)=> b[1].total-a[1].total);
+  } else {
+    rows.sort((a,b)=> a[0].localeCompare(b[0], 'fr'));
+  }
+  return rows;
+}
+
+function renderTotauxMembres(){
+  const totalRows = computeMemberTotals();
+  document.getElementById('tbody-totaux-membres').innerHTML = totalRows.length ? totalRows.map(([nom,t])=>`
+    <tr><td>${escapeHtml(nom)}</td><td class="amount">${t.count}</td><td class="amount">${fmtCFA(t.total)}</td></tr>
+  `).join('') : '<tr><td colspan="3" class="empty">Aucune donnée.</td></tr>';
+
+  document.getElementById('btn-sort-alpha').classList.toggle('active-sort', totauxSortMode==='alpha');
+  document.getElementById('btn-sort-montant').classList.toggle('active-sort', totauxSortMode==='montant');
+
+  const alphaRows = [...totalRows].sort((a,b)=> a[0].localeCompare(b[0], 'fr'));
+  const grandTotal = alphaRows.reduce((s,[,t])=>s+t.total,0);
+  document.getElementById('print-date').textContent = 'Édité le ' + new Date().toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) + ' à ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('print-tbody').innerHTML = alphaRows.length ? alphaRows.map(([nom,t])=>`
+    <tr><td>${escapeHtml(nom)}</td><td class="num">${t.count}</td><td class="num">${fmtNum(t.total)}</td></tr>
+  `).join('') : '<tr><td colspan="3">Aucune donnée.</td></tr>';
+  document.getElementById('print-total').textContent = 'Total général : ' + fmtNum(grandTotal);
+}
+
+/* ---------- etat des cotisations ---------- */
+function monthsElapsedThisYear(){
+  const now = new Date();
+  // Ne compte que les mois pleinement terminés depuis janvier (le mois en cours n'est pas compté).
+  return Math.max(0, Math.min(12, now.getMonth()));
+}
+
+function computeEtatRows(){
+  const totalsByName = {};
+  DATA.cotisations.forEach(c=>{
+    const key = c.nom || '—';
+    totalsByName[key] = (totalsByName[key]||0) + (Number(c.montant)||0);
+  });
+  const monthsElapsed = monthsElapsedThisYear();
+  const attendu = Math.round(monthsElapsed * 3000);
+  return DATA.membres.map(m=>{
+    const totalVerse = totalsByName[m.nom] || 0;
+    const dette = Number(m.dette_2025)||0;
+    const actuel = totalVerse - dette;
+    const reste = Math.max(0, attendu - actuel);
+    const statut = actuel < attendu ? 'En retard' : 'À jour';
+    return {numero:m.numero, matricule:m.matricule, nom:m.nom, dette, totalVerse, actuel, reste, statut};
+  }).sort((a,b)=> a.nom.localeCompare(b.nom, 'fr'));
+}
+
+function renderEtat(){
+  let rows = computeEtatRows();
+
+  const nbAjour = rows.filter(r=>r.statut==='À jour').length;
+  const nbRetard = rows.filter(r=>r.statut==='En retard').length;
+  document.getElementById('stat-etat-ajour').textContent = nbAjour;
+  document.getElementById('stat-etat-retard').textContent = nbRetard;
+
+  const q = (document.getElementById('search-etat').value||'').toLowerCase();
+  const filter = document.getElementById('filter-etat').value;
+  let filtered = rows.filter(r=> !q || r.nom.toLowerCase().includes(q));
+  if(filter==='ajour') filtered = filtered.filter(r=>r.statut==='À jour');
+  if(filter==='retard') filtered = filtered.filter(r=>r.statut==='En retard');
+
+  const tbody = document.getElementById('tbody-etat');
+  tbody.innerHTML = filtered.length ? filtered.map(r=>`
+    <tr>
+      <td>${escapeHtml(r.nom)}</td>
+      <td class="amount">${r.dette ? fmtCFA(r.dette) : '—'}</td>
+      <td class="amount">${fmtCFA(r.totalVerse)}</td>
+      <td class="amount">${fmtCFA(r.actuel)}</td>
+      <td class="amount ${r.reste ? 'reste-highlight' : ''}">${r.reste ? fmtCFA(r.reste) : '—'}</td>
+      <td><span class="badge ${r.statut==='À jour'?'statut-ajour':'statut-retard'}">${r.statut}</span></td>
+    </tr>`).join('') : '<tr><td colspan="6" class="empty">Aucun membre.</td></tr>';
+
+  document.getElementById('print-date-etat').textContent = 'Édité le ' + new Date().toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) + ' à ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('print-summary-etat').textContent =
+    nbAjour + ' membre(s) à jour · ' + nbRetard + ' en retard — tous les montants sont en FCFA.';
+  document.getElementById('print-tbody-etat').innerHTML = rows.length ? rows.map(r=>`
+    <tr>
+      <td>${r.numero ?? '—'}</td>
+      <td>${escapeHtml(r.matricule)||'—'}</td>
+      <td>${escapeHtml(r.nom)}</td>
+      <td class="num">${r.dette ? fmtNum(r.dette) : '—'}</td>
+      <td class="num">${fmtNum(r.totalVerse)}</td>
+      <td class="num">${fmtNum(r.actuel)}</td>
+      <td class="num ${r.reste ? 'reste-highlight' : ''}">${r.reste ? fmtNum(r.reste) : '—'}</td>
+      <td class="${r.statut==='En retard'?'status-retard':''}">${r.statut}</td>
+    </tr>`).join('') : '<tr><td colspan="8">Aucune donnée.</td></tr>';
+}
+
+/* ---------- prestations ---------- */
+function collecteurLabel(p){
+  if(p.repartition && p.repartition.length){
+    return p.repartition.map(r=> escapeHtml(r.collecteur)+' ('+fmtCFA(r.montant)+')').join(', ');
+  }
+  return escapeHtml(p.collecteur) || '—';
+}
+
+function renderPrestations(){
+  const q = (document.getElementById('search-prestations').value||'').toLowerCase();
+  const rows = [...DATA.prestations]
+    .filter(p=> !q || (p.nom||'').toLowerCase().includes(q) || (p.type||'').toLowerCase().includes(q))
+    .sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  document.getElementById('count-prestations').textContent = rows.length + ' prestation(s)';
+  const tbody = document.getElementById('tbody-prestations');
+  tbody.innerHTML = rows.length ? rows.map(p=>`
+    <tr>
+      <td>${escapeHtml(p.type)}</td>
+      <td>${escapeHtml(p.nom)}</td>
+      <td>${fmtDate(p.date)}</td>
+      <td class="amount">${fmtCFA(p.montant)}</td>
+      <td class="amount">${p.transport?fmtCFA(p.transport):'—'}</td>
+      <td>${collecteurLabel(p)}</td>
+      <td>${escapeHtml(p.commentaire)||'—'}</td>
+      <td class="del"><button class="row-del" title="Supprimer" data-del="prestations" data-id="${p.id}">✕</button></td>
+    </tr>`).join('') : '<tr><td colspan="8" class="empty">Aucune prestation.</td></tr>';
+
+  bindDeleteButtons();
+}
+
+function renderCollecteursPoint(){
+  const points = {};
+  const getOrInit = (name)=>{
+    if(!points[name]) points[name] = {initial:0, collecte:0, decaisse:0};
+    return points[name];
+  };
+  (DATA.soldeInitialCollecteurs||[]).forEach(x=>{
+    const name = x.collecteur && x.collecteur.trim();
+    if(!name) return;
+    getOrInit(name).initial += Number(x.montant)||0;
+  });
+  DATA.cotisations.forEach(c=>{
+    const name = c.collecteur && c.collecteur.trim();
+    if(!name) return;
+    getOrInit(name).collecte += Number(c.montant)||0;
+  });
+  const addDecaisse = (item, totalMontant)=>{
+    if(item.repartition && item.repartition.length){
+      item.repartition.forEach(r=>{
+        const name = r.collecteur && r.collecteur.trim();
+        if(!name) return;
+        getOrInit(name).decaisse += Number(r.montant)||0;
+      });
+      return;
+    }
+    const name = item.collecteur && item.collecteur.trim();
+    if(!name) return;
+    getOrInit(name).decaisse += totalMontant;
+  };
+  DATA.prestations.forEach(p=> addDecaisse(p, (Number(p.montant)||0) + (Number(p.transport)||0)));
+  DATA.depenses.forEach(d=> addDecaisse(d, (Number(d.montant)||0) + (Number(d.annexe)||0)));
+  const rows = Object.entries(points).sort((a,b)=> a[0].localeCompare(b[0], 'fr'));
+  const tbody = document.getElementById('tbody-collecteurs-point');
+  tbody.innerHTML = rows.length ? rows.map(([name,p])=>{
+    const reste = p.initial + p.collecte - p.decaisse;
+    return `<tr>
+      <td>${escapeHtml(name)}</td>
+      <td class="amount">
+        <input type="number" class="input-solde-initial-collecteur" data-collecteur="${escapeHtml(name)}" min="0" step="500" value="${p.initial}" style="width:100px; text-align:right; padding:4px 6px;">
+      </td>
+      <td class="amount">${fmtCFA(p.collecte)}</td>
+      <td class="amount">${fmtCFA(p.decaisse)}</td>
+      <td class="amount ${reste<0?'reste-highlight':''}">${fmtCFA(reste)}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="5" class="empty">Aucun collecteur identifié — renseigne le collecteur sur les cotisations et prestations.</td></tr>';
+
+  tbody.querySelectorAll('.input-solde-initial-collecteur').forEach(input=>{
+    input.addEventListener('change', async ()=>{
+      const name = input.dataset.collecteur;
+      const montant = Number(input.value)||0;
+      let entry = (DATA.soldeInitialCollecteurs||[]).find(x=> (x.collecteur||'').trim()===name);
+      if(entry){ entry.montant = montant; }
+      else {
+        if(!Array.isArray(DATA.soldeInitialCollecteurs)) DATA.soldeInitialCollecteurs = [];
+        DATA.soldeInitialCollecteurs.push({collecteur:name, montant:montant});
+      }
+      await saveData();
+      renderDashboard();
+    });
+  });
+}
+
+/* ---------- depenses ---------- */
+function renderDepenses(){
+  const q = (document.getElementById('search-depenses').value||'').toLowerCase();
+  const rows = [...DATA.depenses]
+    .filter(d=> !q || (d.nom||'').toLowerCase().includes(q) || (d.libelle||'').toLowerCase().includes(q))
+    .sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  document.getElementById('count-depenses').textContent = rows.length + ' dépense(s)';
+  const tbody = document.getElementById('tbody-depenses');
+  tbody.innerHTML = rows.length ? rows.map(d=>`
+    <tr>
+      <td>${escapeHtml(d.nom)}</td>
+      <td>${fmtDate(d.date)}</td>
+      <td>${escapeHtml(d.libelle)||'—'}</td>
+      <td class="amount">${fmtCFA(d.montant)}</td>
+      <td class="amount">${d.annexe?fmtCFA(d.annexe):'—'}</td>
+      <td>${collecteurLabel(d)}</td>
+      <td>${escapeHtml(d.commentaire)||'—'}</td>
+      <td class="del"><button class="row-del" title="Supprimer" data-del="depenses" data-id="${d.id}">✕</button></td>
+    </tr>`).join('') : '<tr><td colspan="8" class="empty">Aucune dépense.</td></tr>';
+  bindDeleteButtons();
+}
+
+/* ---------- membres ---------- */
+function prestationsCountFor(nom){
+  if(!nom) return 0;
+  return DATA.prestations.filter(p=> (p.nom||'').toLowerCase() === nom.toLowerCase()).length;
+}
+function renderMembres(){
+  const q = (document.getElementById('search-membres').value||'').toLowerCase();
+  const rows = [...DATA.membres]
+    .filter(m=> !q || (m.nom||'').toLowerCase().includes(q))
+    .sort((a,b)=> (a.nom||'').localeCompare(b.nom||''));
+  document.getElementById('count-membres').textContent = rows.length + ' membre(s)';
+  const tbody = document.getElementById('tbody-membres');
+  tbody.innerHTML = rows.length ? rows.map((m,i)=>{
+    const badges = [];
+    if(m.mariage_civil) badges.push('<span class="badge">Mariage</span>');
+    if(m.deces) badges.push('<span class="badge">Décès famille</span>');
+    if(m.maladie) badges.push('<span class="badge">Maladie</span>');
+    if(m.retraite) badges.push('<span class="badge">Retraite</span>');
+    const pCount = prestationsCountFor(m.nom);
+    if(pCount) badges.push('<span class="badge">'+pCount+' versée(s)</span>');
+    return `
+    <tr>
+      <td>${m.numero ?? (i+1)}</td>
+      <td>${escapeHtml(m.nom)}</td>
+      <td>${escapeHtml(m.matricule)||'—'}</td>
+      <td>${m.fiche==='Non' ? '<span class="badge fiche-non">Non</span>' : '<span class="badge">Oui</span>'}</td>
+      <td>${badges.join('') || '—'}</td>
+      <td class="del"><button class="row-del" title="Supprimer" data-del="membres" data-id="${m.id}">✕</button></td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6" class="empty">Aucun membre.</td></tr>';
+  bindDeleteButtons();
+}
+
+function renderMembresDatalist(){
+  const dl = document.getElementById('membres-list');
+  dl.innerHTML = DATA.membres.map(m=>`<option value="${escapeHtml(m.nom)}">`).join('');
+}
+
+/* ---------- delete ---------- */
+function bindDeleteButtons(){
+  document.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      const table = btn.dataset.del;
+      const id = btn.dataset.id;
+      DATA[table] = DATA[table].filter(x=>x.id!==id);
+      await saveData();
+      renderAll();
+    };
+  });
+}
+
+/* ---------- print ---------- */
+function triggerPrint(areaId){
+  document.querySelectorAll('.print-area').forEach(el=>el.classList.remove('active-print'));
+  document.getElementById(areaId).classList.add('active-print');
+  window.print();
+}
+
+/* ---------- forms ---------- */
+function setupForms(){
+  document.getElementById('form-cotisation').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const f = new FormData(e.target);
+    DATA.cotisations.push({
+      id:uid(),
+      date:f.get('date'),
+      nom:(f.get('nom')||'').trim(),
+      montant:Number(f.get('montant'))||0,
+      collecteur:(f.get('collecteur')||'').trim(),
+      commentaire:(f.get('commentaire')||'').trim()
+    });
+    await saveData();
+    e.target.reset();
+    renderAll();
+  });
+
+  document.getElementById('form-prestation').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const repartition = [];
+    const partYannick = Number(f.get('part_yannick'))||0;
+    const partGerald = Number(f.get('part_gerald'))||0;
+    const partAli = Number(f.get('part_ali'))||0;
+    if(partYannick) repartition.push({collecteur:'YANNICK', montant:partYannick});
+    if(partGerald) repartition.push({collecteur:'GERALD', montant:partGerald});
+    if(partAli) repartition.push({collecteur:'ALI', montant:partAli});
+    DATA.prestations.push({
+      id:uid(),
+      type:f.get('type'),
+      nom:(f.get('nom')||'').trim(),
+      date:f.get('date'),
+      montant:Number(f.get('montant'))||0,
+      transport:Number(f.get('transport'))||0,
+      repartition:repartition,
+      commentaire:(f.get('commentaire')||'').trim()
+    });
+    await saveData();
+    e.target.reset();
+    renderAll();
+  });
+
+  document.getElementById('form-depense').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const repartition = [];
+    const partYannick = Number(f.get('part_yannick'))||0;
+    const partGerald = Number(f.get('part_gerald'))||0;
+    const partAli = Number(f.get('part_ali'))||0;
+    if(partYannick) repartition.push({collecteur:'YANNICK', montant:partYannick});
+    if(partGerald) repartition.push({collecteur:'GERALD', montant:partGerald});
+    if(partAli) repartition.push({collecteur:'ALI', montant:partAli});
+    DATA.depenses.push({
+      id:uid(),
+      nom:(f.get('nom')||'').trim(),
+      date:f.get('date'),
+      libelle:(f.get('libelle')||'').trim(),
+      montant:Number(f.get('montant'))||0,
+      annexe:Number(f.get('annexe'))||0,
+      repartition:repartition,
+      commentaire:(f.get('commentaire')||'').trim()
+    });
+    await saveData();
+    e.target.reset();
+    renderAll();
+  });
+
+  document.getElementById('form-membre').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const nextNum = DATA.membres.reduce((m,x)=>Math.max(m, x.numero||0), 0) + 1;
+    DATA.membres.push({
+      id:uid(),
+      numero:nextNum,
+      nom:(f.get('nom')||'').trim(),
+      matricule:(f.get('matricule')||'').trim(),
+      fiche:f.get('fiche'),
+      dette_2025:Number(f.get('dette_2025'))||0
+    });
+    await saveData();
+    e.target.reset();
+    renderAll();
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', async ()=>{
+    if(confirm('Remplacer toutes les données actuelles par les données importées du fichier Excel original ? Cette action est irréversible.')){
+      DATA = cloneSeed();
+      await saveData();
+      renderAll();
+    }
+  });
+
+  document.getElementById('btn-sort-alpha').addEventListener('click', ()=>{
+    totauxSortMode = 'alpha';
+    renderTotauxMembres();
+  });
+  document.getElementById('btn-sort-montant').addEventListener('click', ()=>{
+    totauxSortMode = 'montant';
+    renderTotauxMembres();
+  });
+  document.getElementById('btn-print-totaux').addEventListener('click', ()=>{
+    triggerPrint('print-report');
+  });
+  document.getElementById('btn-print-etat').addEventListener('click', ()=>{
+    triggerPrint('print-report-etat');
+  });
+  document.getElementById('btn-print-budget').addEventListener('click', ()=>{
+    triggerPrint('print-report-budget');
+  });
+}
+
+function setupSearch(){
+  document.getElementById('search-cotisations').addEventListener('input', renderCotisations);
+  document.getElementById('search-prestations').addEventListener('input', renderPrestations);
+  document.getElementById('search-depenses').addEventListener('input', renderDepenses);
+  document.getElementById('search-membres').addEventListener('input', renderMembres);
+  document.getElementById('search-etat').addEventListener('input', renderEtat);
+  document.getElementById('filter-etat').addEventListener('change', renderEtat);
+}
+
+function gisInit(){
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: async (resp)=>{
+      if(resp.error){
+        document.getElementById('signin-error').textContent =
+          "La connexion a échoué (" + resp.error + "). Réessaie.";
+        document.getElementById('signin-error').style.display = 'block';
+        return;
+      }
+      accessToken = resp.access_token;
+      await afterSignIn();
+    }
+  });
+  document.getElementById('btn-google-signin').disabled = false;
+  document.getElementById('btn-google-signin').textContent = 'Se connecter avec Google';
+}
+
+function waitForGoogleIdentity(){
+  if(window.google && google.accounts && google.accounts.oauth2){
+    gisInit();
+  } else {
+    setTimeout(waitForGoogleIdentity, 100);
+  }
+}
+
+async function afterSignIn(){
+  document.getElementById('signin-gate').style.display = 'none';
+  document.getElementById('app').style.display = '';
+  await init();
+}
+
+document.getElementById('btn-google-signin').addEventListener('click', ()=>{
+  tokenClient.requestAccessToken({ prompt: accessToken ? '' : 'consent' });
+});
+
+document.getElementById('btn-google-signout').addEventListener('click', ()=>{
+  if(accessToken){
+    google.accounts.oauth2.revoke(accessToken, ()=>{});
+  }
+  accessToken = null;
+  driveFileId = null;
+  DATA = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('signin-gate').style.display = '';
+});
+
+waitForGoogleIdentity();
+</script>
+</body>
+</html>
