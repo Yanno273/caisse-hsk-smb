@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Caisse Sociale HSK-SMB</title>
+<!-- Vérification de propriété du domaine (Google Search Console) : remplace le contenu ci-dessous par ton propre code -->
+<meta name="google-site-verification" content="REMPLACE_PAR_TON_CODE_SEARCH_CONSOLE">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -458,12 +460,28 @@
 </style>
 </head>
 <body>
-<div id="signin-gate" style="max-width:420px;margin:15vh auto 0;padding:32px 28px;text-align:center;font-family:'IBM Plex Sans',sans-serif;">
+<div id="signin-gate" style="max-width:520px;margin:8vh auto 0;padding:32px 28px 48px;text-align:center;font-family:'IBM Plex Sans',sans-serif;">
   <p style="font-family:'IBM Plex Mono',monospace;letter-spacing:.14em;font-size:11px;color:#8a2f34;text-transform:uppercase;margin:0 0 10px;">Registre &middot; Rev. 2026</p>
   <h1 style="font-family:'Fraunces',serif;font-weight:600;font-size:26px;margin:0 0 8px;">Caisse Sociale HSK-SMB</h1>
-  <p style="color:#5b5f57;font-size:14px;margin:0 0 28px;">Connecte-toi avec Google pour ouvrir le registre — tes données sont enregistrées dans ton propre Google Drive.</p>
+  <p style="color:#5b5f57;font-size:14px;margin:0 0 24px;">Application de gestion de la caisse sociale de la mutuelle HSK-SMB : cotisations des membres, prestations versées (décès, mariage, hospitalisation, retraite), dépenses, et suivi par collecteur.</p>
+
   <button id="btn-google-signin" disabled style="appearance:none;background:#8a2f34;color:#fbf3e9;border:none;padding:12px 24px;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;border-radius:3px;">Chargement…</button>
   <p id="signin-error" style="display:none;color:#8a2f34;font-size:12.5px;margin-top:16px;"></p>
+
+  <div style="text-align:left;margin-top:40px;padding-top:28px;border-top:1px solid #cfc6ac;">
+    <h2 style="font-family:'Fraunces',serif;font-size:16px;margin:0 0 12px;">Comment ça fonctionne</h2>
+    <ul style="color:#5b5f57;font-size:13.5px;line-height:1.7;padding-left:20px;margin:0 0 20px;">
+      <li>Connecte-toi avec ton compte Google pour ouvrir le registre.</li>
+      <li>Les données (cotisations, membres, prestations, dépenses) sont enregistrées dans un fichier créé dans <strong>ton propre Google Drive</strong> — pas sur un serveur tiers.</li>
+      <li>Une sauvegarde Excel du registre est aussi générée automatiquement dans ton Drive à chaque modification.</li>
+      <li>Utilisable depuis un téléphone ou un ordinateur, avec les mêmes données partout.</li>
+    </ul>
+    <h2 style="font-family:'Fraunces',serif;font-size:16px;margin:0 0 12px;">Confidentialité</h2>
+    <p style="color:#5b5f57;font-size:13.5px;line-height:1.6;margin:0;">
+      L'application n'accède qu'aux fichiers qu'elle crée elle-même dans ton Drive (autorisation Google <code>drive.file</code>), jamais à tes autres fichiers.
+      Consulte la <a href="./privacy.html" style="color:#8a2f34;">politique de confidentialité</a> pour plus de détails.
+    </p>
+  </div>
 </div>
 
 <div id="app" style="display:none;">
