@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Caisse Sociale HSK-SMB</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -798,6 +799,8 @@ const SEED_DATA = {"cotisations": [{"date": "2025-05-08", "collecteur": "ALI", "
 // ⚠️ À REMPLACER avant la mise en ligne — voir README.md pour l'obtenir.
 const GOOGLE_CLIENT_ID = '458648415672-g8jp3cpmh8s1buttvusfsbeltru3k97j.apps.googleusercontent.com';
 const DRIVE_FILENAME = 'caisse-hsk-smb-data.json';
+const EXCEL_FILENAME = 'caisse-hsk-smb-backup.xlsx';
+const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 
 let tokenClient = null;
@@ -825,6 +828,7 @@ function escapeHtml(s){
 }
 
 let driveFileId = null;
+let driveExcelFileId = null;
 
 async function driveApi(url, options={}){
   const res = await fetch(url, {
@@ -874,6 +878,96 @@ async function driveUpdateFile(fileId, content){
   });
 }
 
+async function driveFindExcelFile(){
+  const q = encodeURIComponent(`name='${EXCEL_FILENAME}' and trashed=false`);
+  const res = await driveApi(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&fields=files(id,name)`);
+  const data = await res.json();
+  return (data.files && data.files[0]) ? data.files[0].id : null;
+}
+
+async function driveCreateEmptyFile(name, mimeType){
+  const res = await driveApi('https://www.googleapis.com/drive/v3/files?fields=id', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, mimeType })
+  });
+  const data = await res.json();
+  return data.id;
+}
+
+async function driveUploadBinary(fileId, blob, mimeType){
+  await driveApi(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': mimeType },
+    body: blob
+  });
+}
+
+/* ---------- sauvegarde Excel (.xlsx) automatique dans Drive ---------- */
+function buildExcelWorkbook(){
+  const wb = XLSX.utils.book_new();
+  const repLabel = (item)=> (item.repartition && item.repartition.length)
+    ? item.repartition.map(r=> r.collecteur+' : '+ (r.montant||0)).join(' / ')
+    : (item.collecteur || '');
+
+  const resume = [
+    ['Caisse Sociale HSK-SMB — Récapitulatif'],
+    ['Édité le', new Date().toLocaleString('fr-FR')],
+    [],
+    ['Total cotisé (FCFA)', totalCotisations()],
+    ['Prestations versées (FCFA)', totalPrestations()],
+    ['Autres dépenses (FCFA)', totalDepenses()],
+    ['Solde en caisse (FCFA)', solde()],
+    [],
+    ['Point par collecteur'],
+    ['Collecteur', 'Caisse 2025', 'Total collecté', 'Total décaissé', 'Reste en main']
+  ];
+  computeCollecteursPoints().forEach(([name,p])=>{
+    resume.push([name, p.initial, p.collecte, p.decaisse, p.initial + p.collecte - p.decaisse]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resume), 'Résumé');
+
+  const cot = [['Date','Collecteur','Nom','Montant','Commentaire']];
+  DATA.cotisations.forEach(c=> cot.push([c.date||'', c.collecteur||'', c.nom||'', c.montant||0, c.commentaire||'']));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(cot), 'Cotisations');
+
+  const pres = [['Type','Nom','Date','Montant','Transport','Répartition collecteurs','Commentaire']];
+  DATA.prestations.forEach(p=> pres.push([p.type||'', p.nom||'', p.date||'', p.montant||0, p.transport||0, repLabel(p), p.commentaire||'']));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pres), 'Prestations');
+
+  const dep = [['Nom','Date','Libellé','Montant','Annexe','Répartition collecteurs','Commentaire']];
+  DATA.depenses.forEach(d=> dep.push([d.nom||'', d.date||'', d.libelle||'', d.montant||0, d.annexe||0, repLabel(d), d.commentaire||'']));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(dep), 'Dépenses');
+
+  const mem = [['N°','Nom','Matricule','Fiche','Mariage civil','Décès','Maladie','Retraite','Dette 2025']];
+  DATA.membres.forEach(m=> mem.push([m.numero||'', m.nom||'', m.matricule||'', m.fiche||'', m.mariage_civil||'', m.deces||'', m.maladie||'', m.retraite||'', m.dette_2025||0]));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(mem), 'Membres');
+
+  const etat = [['N°','Matricule','Nom','Dette 2025','Total versé','Montant actuel','Reste à payer','Statut']];
+  computeEtatRows().forEach(r=> etat.push([r.numero||'', r.matricule||'', r.nom||'', r.dette||0, r.totalVerse||0, r.actuel||0, r.reste||0, r.statut||'']));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(etat), 'Etat cotisations');
+
+  return wb;
+}
+
+async function exportExcelBackup(){
+  try{
+    if(typeof XLSX === 'undefined') return;
+    const wb = buildExcelWorkbook();
+    const arrayBuf = XLSX.write(wb, { type:'array', bookType:'xlsx' });
+    const blob = new Blob([arrayBuf], { type: EXCEL_MIME });
+    if(!driveExcelFileId){
+      driveExcelFileId = await driveFindExcelFile();
+    }
+    if(!driveExcelFileId){
+      driveExcelFileId = await driveCreateEmptyFile(EXCEL_FILENAME, EXCEL_MIME);
+    }
+    await driveUploadBinary(driveExcelFileId, blob, EXCEL_MIME);
+  }catch(e){
+    console.error('La sauvegarde Excel automatique a échoué', e);
+  }
+}
+
 async function loadData(){
   try{
     driveFileId = await driveFindFile();
@@ -893,6 +987,7 @@ async function saveData(){
     } else {
       await driveUpdateFile(driveFileId, DATA);
     }
+    exportExcelBackup(); // sauvegarde Excel en parallèle, sans bloquer l'interface
   }catch(e){
     console.error('Erreur de sauvegarde sur Google Drive', e);
     alert("Impossible d'enregistrer sur Google Drive. Vérifie ta connexion et réessaie.");
@@ -1185,7 +1280,7 @@ function renderPrestations(){
   bindDeleteButtons();
 }
 
-function renderCollecteursPoint(){
+function computeCollecteursPoints(){
   const points = {};
   const getOrInit = (name)=>{
     if(!points[name]) points[name] = {initial:0, collecte:0, decaisse:0};
@@ -1216,7 +1311,11 @@ function renderCollecteursPoint(){
   };
   DATA.prestations.forEach(p=> addDecaisse(p, (Number(p.montant)||0) + (Number(p.transport)||0)));
   DATA.depenses.forEach(d=> addDecaisse(d, (Number(d.montant)||0) + (Number(d.annexe)||0)));
-  const rows = Object.entries(points).sort((a,b)=> a[0].localeCompare(b[0], 'fr'));
+  return Object.entries(points).sort((a,b)=> a[0].localeCompare(b[0], 'fr'));
+}
+
+function renderCollecteursPoint(){
+  const rows = computeCollecteursPoints();
   const tbody = document.getElementById('tbody-collecteurs-point');
   tbody.innerHTML = rows.length ? rows.map(([name,p])=>{
     const reste = p.initial + p.collecte - p.decaisse;
