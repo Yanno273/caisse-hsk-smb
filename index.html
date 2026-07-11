@@ -453,6 +453,7 @@
     margin-top:16px; font-family:'IBM Plex Mono',monospace; font-size:13px; text-align:right; font-weight:600;
   }
   .print-area .status-retard{color:var(--rule); font-weight:600;}
+  .print-area .print-page-break{ break-after:page; page-break-after:always; }
 
   @media print{
     body > *:not(.print-area){display:none !important;}
@@ -1266,8 +1267,9 @@ function renderEtat(){
   document.getElementById('print-date-etat').textContent = 'Édité le ' + new Date().toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) + ' à ' + new Date().toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
   document.getElementById('print-summary-etat').textContent =
     nbAjour + ' membre(s) à jour · ' + nbRetard + ' en retard — tous les montants sont en FCFA.';
-  document.getElementById('print-tbody-etat').innerHTML = rows.length ? rows.map(r=>`
-    <tr>
+  const midpoint = Math.ceil(rows.length / 2) - 1;
+  document.getElementById('print-tbody-etat').innerHTML = rows.length ? rows.map((r,i)=>`
+    <tr class="${i===midpoint ? 'print-page-break' : ''}">
       <td>${r.numero ?? '—'}</td>
       <td>${escapeHtml(r.matricule)||'—'}</td>
       <td>${escapeHtml(r.nom)}</td>
