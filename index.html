@@ -550,7 +550,14 @@
           <div><label>Date</label><input type="date" name="date" required></div>
           <div><label>Nom du membre</label><input type="text" name="nom" list="membres-list" required></div>
           <div><label>Montant (FCFA)</label><input type="number" name="montant" min="0" step="500" required></div>
-          <div><label>Collecteur</label><input type="text" name="collecteur"></div>
+          <div><label>Collecteur</label>
+            <select name="collecteur">
+              <option value="">— Choisir —</option>
+              <option>YANNICK</option>
+              <option>GERALD</option>
+              <option>ALI</option>
+            </select>
+          </div>
           <div style="grid-column:1/-1;"><label>Commentaire</label><input type="text" name="commentaire"></div>
           <div><button class="primary" type="submit">Ajouter</button></div>
         </form>
