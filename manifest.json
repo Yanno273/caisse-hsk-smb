@@ -1,0 +1,18 @@
+{
+  "name": "Caisse Sociale HSK-SMB",
+  "short_name": "Caisse HSK-SMB",
+  "description": "Cotisations, prestations, dépenses et membres de la caisse sociale HSK-SMB",
+  "id": "/caisse-hsk-smb/",
+  "start_url": "/caisse-hsk-smb/",
+  "scope": "/caisse-hsk-smb/",
+  "display": "standalone",
+  "background_color": "#EEEAdd",
+  "theme_color": "#8a2f34",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/caisse-hsk-smb/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/caisse-hsk-smb/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/caisse-hsk-smb/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/caisse-hsk-smb/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
