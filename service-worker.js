@@ -3,7 +3,7 @@
 // Les données passent toujours par le réseau (Google Drive, Google Identity) :
 // aucune requête vers accounts.google.com ou googleapis.com n'est mise en cache.
 
-const CACHE_NAME = 'caisse-hsk-smb-shell-v1';
+const CACHE_NAME = 'caisse-hsk-smb-shell-v2';
 const SCOPE = '/caisse-hsk-smb/';
 const SHELL_FILES = [
   SCOPE,
@@ -34,7 +34,6 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Jamais de cache pour Google (connexion, Drive API) : toujours le réseau.
   if (url.hostname.endsWith('google.com') || url.hostname.endsWith('googleapis.com') || url.hostname.endsWith('gstatic.com')) {
     return;
   }
@@ -43,6 +42,12 @@ self.addEventListener('fetch', event => {
   }
 
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+    fetch(event.request)
+      .then(res => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy)).catch(()=>{});
+        return res;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
